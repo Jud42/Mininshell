@@ -53,7 +53,7 @@ int	redir_exist(char *s)
 	int	i;
 
 	i = 0;
-	if (s || *s == '<' || *s == '>')
+	if (s && *s == '<' || *s == '>')
 	{
 		if (s[i] == '<' && s[i + 1] == '<')
 			return (HEREDOC);

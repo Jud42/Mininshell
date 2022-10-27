@@ -100,6 +100,5 @@ char	**lex_split(char *s, char sep)
 			tab[++j] = take_word(s, sep, &i);
 	}
 	tab[j + 1] = NULL;
-	j = -1;
 	return (tab);
 }

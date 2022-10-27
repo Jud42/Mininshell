@@ -36,19 +36,21 @@ static void	take_redir(char *s, int flag, t_cmd **cmd_node)
 	temp->next = node_redir;
 }
 
-static void	help_take_arg(char **tab, char ***new, int **pos)
+static void	help_take_arg(char **tab, char ***new, int *pos)
 {
 	int	i;
+	int	flag;
 
 	i = 0;
-	while (tab[**pos] && ft_strcmp(tab[**pos], "|") != 0)
+	flag = 0;
+	while (tab[*pos] && ft_strcmp(tab[*pos], "|") != 0)
 	{
-		if (redir_exist(tab[**pos]) == HEREDOC && !tab[**pos + 1])
-			break ;
-		if (redir_exist(tab[**pos]))
-				(**pos) += 2;
+		flag = redir_exist(tab[*pos]);
+		if (flag && tab[i][ft_strlen(tab[i]) - 1] == '<' ||\
+		tab[i][ft_strlen(tab[i]) - 1] == '>')
+			(*pos) += 2;
 		else
-			(*new)[i++] = tab[(**pos)++];
+			(*new)[i++] = tab[(*pos)++];
 	}
 	(*new)[i] = NULL;
 }
@@ -66,7 +68,8 @@ static char	**take_argv(char **tab, int *pos, t_cmd *node)
 	while (tab[i] && ft_strcmp(tab[i], "|") != 0)
 	{
 		flag = redir_exist(tab[i]);
-		if (flag)
+		if (flag && tab[i][ft_strlen(tab[i]) - 1] == '<' ||\
+		tab[i][ft_strlen(tab[i]) - 1] == '>')
 		{
 			take_redir(tab[i + 1], flag, &node);
 			count += 2;
@@ -76,7 +79,7 @@ static char	**take_argv(char **tab, int *pos, t_cmd *node)
 	new = malloc(sizeof(char *) * (((i - *pos) - count) + 1));
 	if (!new)
 		return (NULL);
-	help_take_arg(tab, &new, &pos);
+	help_take_arg(tab, &new, pos);
 	return (new);
 }
 /*--------------------------------*/
@@ -91,6 +94,7 @@ static void	get_list(t_lst **li, int *pos)
 		return ;
 	node->redir = NULL;
 	node->av = take_argv((*li)->tab, pos, node);
+	//printf("node => %s", node->av[0]);
 	node->cmd = node->av[0];
 	node->infile = 0;
 	node->outfile = 0;
