@@ -3,7 +3,7 @@ My first team project (2) and this is one of my favorite projects... The locatio
 
 ## ***INSTALLATION***
 
-On your shell => command => **git clone git@github.com:Jud42/Mininshell.git**
+On your shell => command => **git clone git@github.com:Jud42/minishell.git**
 
 **Go to the minishell directory**.
 
