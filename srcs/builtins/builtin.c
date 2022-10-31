@@ -34,7 +34,7 @@ int	check_builtin(char *str)
 void	exec_builtin(t_cmd *node, t_lst *ms)
 {
 	if (!ft_strncmp(node->cmd, "export\0", 7) && node->av[1])
-		node->exit = ft_export(node->av[1], ms);
+		g_ms.exit = ft_export(node->av[1], ms);
 	else if (!ft_strncmp(node->cmd, "export\0", 7) && node->av[1] == NULL)
 		sort_export(ms);
 	else if (!ft_strncmp(node->cmd, "unset\0", 6) && node->av[1])

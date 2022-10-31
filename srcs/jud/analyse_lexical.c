@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-void	home_sign(char **s, t_lst *li)
+static void	home_sign(char **s, t_lst *li)
 {
 	char	*path_home;
 	char	*temp_str;
@@ -29,65 +29,66 @@ void	home_sign(char **s, t_lst *li)
 	}
 }
 
-int	quote_exist(char *s)
+static void    write_env(char **s, char *env_value)
 {
-	int	i;
-
-	i = -1;
-	if (!s)
-		return (FALSE);
-	while (s[++i])
-	{
-		if (s[i] == '\'')
-			return (S_QUOTE);
-		else if (s[i] == '\"')
-			return (D_QUOTE);
-		else if (s[i] == '$')
-			return (DOLLAR);
-	}
-	return (FALSE);
+        int     i;
+        if (!env_value)
+                return ;
+        i = -1;
+        while (env_value[++i])
+                *(*s)++ = env_value[i];
+        free(env_value);
 }
 
-int	redir_exist(char *s)
+static void    update_word(char *s, char *temp, t_lst *li)
 {
-	int	i;
+        int     i;
 
-	i = 0;
-	if (s && *s == '<' || *s == '>')
-	{
-		if (s[i] == '<' && s[i + 1] == '<')
-			return (HEREDOC);
-		else if (s[i] == '<')
-			return (REDIR_IN);
-		else if (s[i] == '>' && s[i + 1] == '>')
-			return (REDIR_OUT_D);
-		else if (s[i] == '>')
-			return (REDIR_OUT_S);
-	}
-	return (FALSE);
+        i = -1;
+        while (s[++i])
+        {
+                if (s[i] == '\'')
+                        while (s[++i] != '\'' && s[i])
+                                *temp++ = s[i];
+                else if (s[i] == '\"')
+                {
+                        while (s[++i] != '\"' && s[i])
+                        {
+                                if (s[i] == '$' && s[i + 1] != ' ')
+                                        write_env(&temp, handle_sign(s, &i, li));
+                                else 
+                                        *temp++ = s[i];
+                        }
+                }
+                else if (s[i] == '$' && s[i + 1])
+                        write_env(&temp, handle_sign(s, &i, li));
+                else
+                        *temp++ = s[i];
+        }
+        *temp = '\0';
+        free(s);
 }
 
 void	handle_action(t_lst **li)
 {
 	int		i;
+	int		j;
 	int		flag;
 	char	*temp;
 
 	i = -1;
-	temp = NULL;
 	while ((*li)->tab[++i])
 	{
-		flag = quote_exist((*li)->tab[i]);
 		home_sign(&(*li)->tab[i], *li);
-		if (flag == S_QUOTE)
-			temp = news_s_quote((*li)->tab[i]);
-		else if (flag == D_QUOTE || flag == DOLLAR)
-			temp = news_d_quote((*li)->tab[i], *li);
-		if (temp)
+		j = -1;
+		if (quote_exist((*li)->tab[i]))
 		{
-			free((*li)->tab[i]);
+			temp = malloc(sizeof(char) * \
+			len_new_word((*li)->tab[i], *li) + 1);
+			if (!temp)
+				return ;
+			update_word((*li)->tab[i], temp, *li);
 			(*li)->tab[i] = temp;
-			temp = NULL;
 		}
 	}
 }

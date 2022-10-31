@@ -35,6 +35,26 @@ int	exception_built(t_lst *li)
 	return (0);
 }
 
+static int     get_line(t_lst *term)
+{
+        struct termios  news;
+
+        tcgetattr(0, &term->saved);
+        tcgetattr(0, &news);
+        news.c_lflag &= ~ECHOCTL;
+        tcsetattr(0, TCSAFLUSH, &news);
+        init_signal();
+        term->line = readline(BOLDGREEN"minishell$> "RESET);
+        if (!term->line)
+        {
+                write(1, "exit\n", 5);
+                return (0);
+        }
+        if (*term->line)
+                add_history(term->line);
+        return (1);
+}
+
 int	main(int ac, char **av, char **envp)
 {
 	t_lst	li;
@@ -53,7 +73,7 @@ int	main(int ac, char **av, char **envp)
 				exec_builtin(li.head, &li);
 			else
 				exec_process(&li);
-			free_all(&li);
+			clean_all(&li);
 		}
 		tcsetattr(0, TCSANOW, &li.saved);
 		free(li.line);

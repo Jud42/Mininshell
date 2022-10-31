@@ -12,17 +12,27 @@
 
 #include "minishell.h"
 
-static void	ctrl_d_push(char *limiter, int len)
+static void	ctrl_d_push(t_redir *red, int len, int *fd)
 {	
 	char	*tmp;
+	t_redir *red_temp;
+	t_redir *node_free;
 
 	tmp = ft_itoa(len);
-	ft_putstr_fd("minishell: warning: here-document at line ", 2);
-	msg_error(tmp, 0, " delimited by end-of-file ");
-	msg_error("(wanted `", 0, limiter);
-	write(2, "')\n", 3);
+	ft_putstr_fd("minishell: warning: here-document received EOF", 2);
+	msg_error(" before delimiter => ", 0, red->name);
+	write(1, "\n", 1);
+	red_temp = red;
+	while (red_temp)
+	{
+		node_free = red_temp;
+		red_temp = red_temp->next;
+		free(node_free);
+	}
 	free(tmp);
-	exit(0);
+	close(*fd);
+	//unlink(".heredoc");
+	exit(1);
 }
 
 static void	zero_newline(char **old)
@@ -49,7 +59,7 @@ static int	process_heredoc(t_redir *red, int *file_temp)
 
 	temp = readline("> ");
 	if (!temp)
-		ctrl_d_push(red->name, len);
+		ctrl_d_push(red, len, file_temp);
 	add_history(temp);
 	zero_newline(&temp);
 	if (ft_strcmp(red->name, temp) != 0)
@@ -64,9 +74,9 @@ static int	process_heredoc(t_redir *red, int *file_temp)
 	return (0);
 }
 
-int	here_doc(t_redir *red)
+void	here_doc(t_redir *red)
 {
-	int				file_temp;
+	int		file_temp;
 	struct termios	news;
 	struct termios	sav;
 
@@ -77,14 +87,12 @@ int	here_doc(t_redir *red)
 	file_temp = open(".heredoc", O_CREAT | O_TRUNC | O_WRONLY, 0644);
 	if (file_temp < 0)
 	{
-		msg_error("minishel: error: open()", '\n', NULL);
+		msg_error("minishel: error: heredoc_ open()", '\n', NULL);
 		exit(EXIT_FAILURE);
 	}
-	if (file_temp < 0)
-		msg_error("Error: file_temp_here_doc\n", 0, NULL);
 	while (process_heredoc(red, &file_temp))
 		;
 	tcsetattr(0, TCSANOW, &sav);
 	close(file_temp);
-	return (1);
+	exit(0);
 }

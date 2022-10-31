@@ -12,6 +12,25 @@
 
 #include "../../includes/minishell.h"
 
+int     quote_exist(char *s)
+{
+        int     i;
+
+        if (!s)
+                return (FALSE);
+        i = -1;
+        while (s[++i])
+        {
+                if (s[i] == '\'')
+                        return (S_QUOTE);
+                else if (s[i] == '\"')
+                        return (D_QUOTE);
+                else if (s[i] == '$')
+                        return (DOLLAR);
+        }
+        return (FALSE);
+}
+
 int	recheck_cmp(char *env, char *temp)
 {
 	int	i;

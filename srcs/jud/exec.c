@@ -38,7 +38,6 @@ static int	help_ft_exec(char **cmd, char **tab, t_lst *li)
 
 static int	ft_exec(t_cmd *node, t_lst *li, pid_t *pid)
 {
-	struct stat	sb;
 	char		**tab;
 
 	tab = NULL;
@@ -53,6 +52,7 @@ static int	ft_exec(t_cmd *node, t_lst *li, pid_t *pid)
 		free_tab(tab);
 		return (0);
 	}
+	free_tab(tab);
 	return (1);
 }
 
@@ -65,8 +65,8 @@ static void	process_daddy(t_lst **li, pid_t *pid)
 	close_fd(NULL, li);
 	while (++i <= (*li)->pipe)
 	{
-		g_ms.pid_sig = pid[i];
-		init_signals();
+		g_ms.pid_child = pid[i];
+		init_signal();
 		waitpid(pid[i], &status, 0);
 		if (WIFSIGNALED(status))
 		{
@@ -78,30 +78,30 @@ static void	process_daddy(t_lst **li, pid_t *pid)
 		}
 		if (WIFEXITED(status))
 			g_ms.exit = WEXITSTATUS(status);
-		g_ms.pid_sig = 0;
+		g_ms.pid_child = 0;
 	}
 }
 
-static int	process_child(t_lst *li, t_cmd node, int times, pid_t *pid)
+static int	process_child(t_lst *li, t_cmd node, int x, pid_t *pid)
 {
-	child_signal(0);
+	init_child_signal(0);
 	if (node.infile)
 		dup_fd(node.infile, STDIN_FILENO);
 	if (node.outfile)
-		dup_fd(node.outfile, STDOUT_FILENO);
-	if (times == 0 && li->pipe && !node.outfile)
-		dup_fd(li->tube_fd[times][1], 1);
-	if (times > 0)
+		dup_fd(node.outfile, 1);
+	if (x == 0 && li->pipe && !node.outfile)
+		dup_fd(li->tube_fd[x][1], 1);
+	if (x > 0)
 	{
 		if (!node.infile)
-			dup_fd(li->tube_fd[times - 1][0], 0);
-		if (times != li->pipe && !node.outfile)
-			dup_fd(li->tube_fd[times][1], 1);
+			dup_fd(li->tube_fd[x - 1][0], 0);
+		if (x != li->pipe && !node.outfile)
+			dup_fd(li->tube_fd[x][1], 1);
 	}
 	close_fd(&node, &li);
 	if (check_builtin(node.cmd) == TRUE)
 		exec_builtin(&node, li);
-	else if (node.cmd && !ft_exec(&node, li, &pid[times]))
+	else if (node.cmd && !ft_exec(&node, li, &pid[x]))
 	{
 		msg_error("minishell: ", 0, node.av[0]);
 		ft_putstr_fd(": command not found\n", 2);
@@ -113,26 +113,23 @@ static int	process_child(t_lst *li, t_cmd node, int times, pid_t *pid)
 void	exec_process(t_lst *li)
 {
 	int		status;	
-	int		ret;
-	int		times;
+	int		x;
 
+	if (li->redirection)
+		if (init_redir(li->head, li))
+			return ;
 	malloc_pid(&li);
 	if (li->pipe)
 		init_pipe(li);
-	times = -1;
-	while (++times <= li->pipe)
+	x = -1;
+	while (++x <= li->pipe)
 	{
-		li->pid[times] = fork();
-		if (li->pid[times] == -1)
+		li->pid[x] = fork();
+		if (li->pid[x] == -1)
 			exit(EXIT_FAILURE);
-		else if (li->pid[times] == 0)
-		{
-			if (li->redirection)
-				init_redir(li->head, li);
-			process_child(li, *li->head, times, li->pid);
-		}
+		else if (li->pid[x] == 0)
+			process_child(li, *li->head, x, li->pid);
 		delete_first(&li);
 	}
-	unlink(".heredoc");
 	process_daddy(&li, li->pid);
 }

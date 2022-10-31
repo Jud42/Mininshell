@@ -48,6 +48,6 @@ void	ft_exit(char **cmd, t_lst *li)
 	}
 	else if (cmd[1] != NULL && ft_str_isdigit(cmd[1]) == 1)
 		status = ft_atoi(cmd[1]);
-	free_all(li);
+	clean_all(li);
 	exit(status);
 }

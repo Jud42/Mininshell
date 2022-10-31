@@ -36,7 +36,7 @@ void	free_tab(char **tab)
 	int	i;
 
 	i = -1;
-	if (tab == NULL)
+	if (!tab)
 		return ;
 	while (tab[++i])
 	{
@@ -49,7 +49,7 @@ void	free_tab(char **tab)
 
 void	free_list(t_lst *li)
 {
-	if (li->head)
+	if (!li->head)
 		return ;
 	while (li->head)
 		delete_first(&li);
@@ -59,27 +59,33 @@ void	free_pipe(t_lst *li)
 {
 	int	i;
 
-	if (!li->pipe)
-		return ;
 	i = -1;
 	while (++i < li->pipe)
+	{
 		free(li->tube_fd[i]);
+		li->tube_fd[i] = NULL;
+	}
 	free(li->tube_fd);
 	li->tube_fd = NULL;
 }
 
-void	free_all(t_lst *li)
+void	clean_all(t_lst *li)
 {
 	int	i;
 
 	i = -1;
+	if (li->heredoc)
+		unlink(".heredoc");
+	li->heredoc = 0;
 	if (li->tab)
 		free_tab(li->tab);
 	li->tab = NULL;
-	if (li->pipe)
-		free_pipe(li);
 	if (li->pid)
 		free(li->pid);
 	li->pid = NULL;
-	free_list(li);
+	if (li->tube_fd)
+		free_pipe(li);
+	if (li->head)
+		free_list(li);
+	li->head = NULL;
 }

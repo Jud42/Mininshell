@@ -36,7 +36,7 @@ void	init_pipe(t_lst *li)
 	while (++i < li->pipe)
 	{
 		li->tube_fd[i] = malloc(sizeof(int) * 2);
-		if (!li->tube_fd)
+		if (!li->tube_fd[i])
 		{
 			msg_error("error: allocation *tube_fd\n", 0, NULL);
 			exit(EXIT_FAILURE);
@@ -99,8 +99,9 @@ void	init_shell(t_lst *li, char **tab)
 		li->nb_arg++;
 	li->pipe = check_pipe(li->tab);
 	li->redirection = check_redir(&li);
-	li->head = NULL;
 	li->pid = NULL;
+	li->tube_fd = NULL;
+	li->head = NULL;
 	handle_action(&li);
 	create_list(&li);
 }

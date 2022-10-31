@@ -57,6 +57,7 @@ void	check_error(char *path)
 
 void	dup_fd(int fd_in, int fd_out)
 {
+	//printf("fd_in de dup_fd => %d\n", fd_in);
 	if (dup2(fd_in, fd_out) < 0)
 	{
 		msg_error("error: dup2\n", 0, NULL);
@@ -82,6 +83,8 @@ void	close_fd(t_cmd *node, t_lst **li)
 			close(node->infile);
 		if (node->outfile)
 			close(node->outfile);
+		node->infile = 0;
+		node->outfile = 0;
 	}
 }
 

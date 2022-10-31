@@ -72,10 +72,9 @@ static int	error_redirection(char *s, int *i)
 
 static int	help_error_exist(char *s)
 {
-	if (redirection(s[ft_strlen(s) - 1]) && s[ft_strlen(s) - 2] != '<')
+	if (redirection(s[ft_strlen(s) - 1]))
 	{
-		ft_putstr_fd("minishell: syntax error near unexpected \
-		token `newline'\n", 2);
+		ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n", 2);
 		return (TRUE);
 	}
 	return (0);

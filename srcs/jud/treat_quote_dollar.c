@@ -21,44 +21,73 @@ static int	len_var(char *s, int i)
 		ret++;
 	return (ret);
 }
+/*--------------------------------*/
+
+int	len_dollar(char *s, int *i, t_lst *li)
+{
+	int	ret;
+	char	*temp;
+
+	ret = 0;
+	temp = handle_sign(s, i, li);
+	if (temp)
+	{
+		ret = ft_strlen(temp);
+		free(temp);
+	}
+	return (ret);
+}
 /*------------------------------------------*/
 
-static void	help_len_d_quote(char **temp, int *dollar)
+int	len_d_quote(char *s, t_lst *li, int *i)
 {
-	if (*temp)
-	{	
-		*dollar += (int)ft_strlen(*temp);
-		free(*temp);
-	}
-}
-
-int	len_d_quote(char *s, t_lst *li)
-{
-	int		i;
-	int		dollar;
 	int		car;
 	char	*temp;
 
-	i = 0;
-	dollar = 0;
 	car = 0;
 	temp = NULL;
-	while (s[i])
+	while (s[++(*i)] != '\"' && s[*i])
 	{
-		if (s[i] == '$' && (s[i + 1] != ' ' && s[i + 1]))
+		if (s[*i] == '$' && (s[(*i) + 1] != ' ' && \
+		s[(*i) + 1] != '\"' && s[(*i) + 1]))
 		{
-			temp = handle_sign(s, &i, li);
-			help_len_d_quote(&temp, &dollar);
+			temp = handle_sign(s, i, li);
+			if (temp) 
+			{
+				car += ft_strlen(temp);
+				free(temp);
+			}
 		}
-		else if (s[i] != '\"')
+		else
 			car++;
-		if (s[i] != '$' || s[i] == '$' && (s[i + 1] == ' ' || !s[i + 1]))
-			i++;
 	}
-	return (car + dollar);
+	return (car);
 }
 /*--------------------------------------*/
 
+int	len_new_word(char *s, t_lst *li)
+{
+	int	i;
+	int	ret;
+
+	ret = 0;
+	i = -1;
+	while (s[++i])
+	{
+		if (s[i] == '\'')
+			while (s[++i] != '\'' && s[i])
+				++ret;
+		else if (s[i] == '\"')
+			ret += len_d_quote(s, li, &i);
+		else if (s[i] == '$' && s[i + 1])
+			ret += len_dollar(s, &i, li);
+		else
+			ret++;
+	}
+	return (ret);
+}
+
+/*---------------------------------*/
 char	*handle_sign(char *s, int *i, t_lst *li)
 {
 	char	*temp;
@@ -77,5 +106,6 @@ char	*handle_sign(char *s, int *i, t_lst *li)
 	else
 		ret = ft_strdup(get_env_value(temp, li));
 	free(temp);
+	--(*i);
 	return (ret);
 }

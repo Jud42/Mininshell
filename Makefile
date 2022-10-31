@@ -31,14 +31,13 @@ SRC =	main.c \
 		jud/lexical_split.c \
 		jud/help_lexical_split.c \
 		jud/analyse_lexical.c \
+		jud/treat_quote_dollar.c \
+		jud/help_treat_quote_dollar.c \
 		jud/init_struct_shell.c \
 		jud/list_utils.c \
 		jud/help_list_utils.c \
 		jud/free_utils.c \
 		jud/redirection_parse.c \
-		jud/treat_quote_dollar.c \
-		jud/help_treat_quote_dollar.c \
-		jud/parse_clean_quote.c \
 		jud/heredoc.c \
 		jud/exec.c \
 		jud/exec_utils.c \
@@ -53,7 +52,7 @@ INCLUDE = -I includes/ -I libft/ \
 READLINE_LIB = -L /Users/$(USER)/.brew/Cellar/readline/8.1.2/lib -lreadline
 LIB_LIBFT = libft/libft.a
 
-FLAGS = -Wall -Wextra -Werror #-g3 -o0 -fsanitize=address
+FLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 CC = gcc
 
 RM = rm -rf

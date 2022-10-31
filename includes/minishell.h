@@ -56,55 +56,48 @@
 typedef struct s_ms
 {
 	char	**env_p;
-	int		exit;
-	pid_t	pid_sig;
+	int	exit;
+	pid_t	pid_child;
 }	t_ms;
 
 extern t_ms	g_ms;
 
 typedef struct s_env
 {
-	char			*value;
+	char		*value;
 	struct s_env	*next;
 }	t_env;
 
 typedef struct s_cmd
 {	
-	char			*cmd;
-	char			**av;
-	int				ac;
-	int				fd_in;
-	int				fd_out;
-	int				fd_file;
-	int				infile;
-	int				outfile;
-	int				exit;
+	char		*cmd;
+	char		**av;
+	int		infile;
+	int		outfile;
 	struct s_redir	*redir;
 	struct s_cmd	*next;
-	struct s_cmd	*prev;
 }	t_cmd;
 
 typedef struct s_redir
 {
-	int				pos;
-	int				sign;
-	char			*name;
+	int		pos;
+	int		sign;
+	char		*name;
 	struct s_redir	*next;
 }	t_redir;
 
 typedef struct s_lst
 {
-	char			*line;
-	char			**tab;
-	int				nb_arg;
-	int				heredoc;
-	int				redirection;
-	int				pipe;
-	pid_t			*pid;
-	int				**tube_fd;
-	int				times;
-	int				n_env;
-	int				test;
+	char		*line;
+	char		**tab;
+	int		nb_arg;
+	int		heredoc;
+	int		redirection;
+	int		pipe;
+	pid_t		*pid;
+	int		**tube_fd;
+	int		times;
+	int		n_env;
 	struct s_cmd	*head;
 	struct s_env	*env;
 	struct termios	saved;
@@ -142,11 +135,9 @@ void		ft_exit(char **cmd, t_lst *li);
 static	int	ft_str_isdigit(char *str);
 void		ctl_d_exit(void);
 /*--------- signals ---------*/
-void		init_signals(void);
-int			get_line(t_lst *term);
+void		init_signal(void);
+void		init_child_signal(int flag);
 void		sig_handler(int signum);
-void		child_signal(int flag);
-void		daddy_signal(t_lst *li);
 /*---------- Environment ----------*/
 char		*get_env_value(char *env, t_lst *ms);
 char		**env_2_str(t_lst *ms);
@@ -160,42 +151,43 @@ void		free_2ptr(char **str);
 //JUD
 	/*handle_input.c*/
 void		msg_error(char *s1, char c, char *s2);
-int			error_exist(char *s);
+int		error_exist(char *s);
+	
+	/*init_struct_shell.c*/
 void		init_shell(t_lst *li, char **tab);
 void		malloc_pid(t_lst **li);
+void		init_pipe(t_lst *li);
 
 	/*lexical_split.c && redirection.parse*/
-int			redirection(char c);
-int			count_redirection(char *s, int i);
-int			count_sep(char *s, char sep);
+int		redirection(char c);
+int		count_redirection(char *s, int i);
+int		count_sep(char *s, char sep);
 void		write_redirection(char **p_word, char *s, int *i);
 char		**lex_split(char *s, char sep);
 
 	/*analyse_lexical.c*/
-int			quote_exist(char *s);
-int			redir_exist(char *s);
 void		handle_action(t_lst **li);
 
 	/*treat_quote_dollar.c*/
-int			len_d_quote(char *s, t_lst *li);
-char		*news_s_quote(char *s);
-char		*news_d_quote(char *s, t_lst *li);
 char		*handle_sign(char *s, int *i, t_lst *li);
+int		len_new_word(char *s, t_lst *li);
+
 
 	/*help_treat_quote_dollar.c*/
 char		*take_val_var(char *s);
+int		quote_exist(char *s);
 
 	/*list_utils.c*/
 void		create_list(t_lst **li);
 void		delete_first(t_lst **li);
 void		delete_redir(t_redir *node);
+int		redir_exist(char *s);
 
-	/*init_redirection.c && init_pipe*/
-void		init_pipe(t_lst *li);
-int			init_redir(t_cmd *node, t_lst *li);
+	/*init_redirection.c*/
+int		init_redir(t_cmd *node, t_lst *li);
 
 	/*here_doc*/
-int			here_doc(t_redir *red);	
+void		here_doc(t_redir *red);	
 
 	/*exec.c && exec_utils.c*/
 void		dup_fd(int fd_in, int fd_out);
@@ -205,11 +197,12 @@ void		exec_process(t_lst *li);
 void		check_error(char *path);
 
 	/*free_utils.c*/
-void		free_all(t_lst *li);
+void		clean_all(t_lst *li);
 void		free_list(t_lst *li);
 void		free_env(t_env **env);
 void		free_tab(char **tab);
 void		free_pipe(t_lst *li);
 void		print_list(t_lst *li);
+
 /*----------------------------------------------------------*/
 #endif

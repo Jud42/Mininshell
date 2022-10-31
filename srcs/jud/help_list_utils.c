@@ -12,6 +12,25 @@
 
 #include "../../includes/minishell.h"
 
+int     redir_exist(char *s)
+{
+        int     i;
+
+        i = 0;
+        if (s && *s == '<' || *s == '>')
+        {
+                if (s[i] == '<' && s[i + 1] == '<')
+                        return (HEREDOC);
+                else if (s[i] == '<')
+                        return (REDIR_IN);
+                else if (s[i] == '>' && s[i + 1] == '>')
+                        return (REDIR_OUT_D);
+                else if (s[i] == '>')
+                        return (REDIR_OUT_S);
+        }
+        return (FALSE);
+}
+
 void	delete_redir(t_redir *node)
 {
 	t_redir	*temp;	
@@ -22,7 +41,7 @@ void	delete_redir(t_redir *node)
 	if (!node)
 		return ;
 	temp = node;
-	while (temp != NULL)
+	while (temp)
 	{
 		old = temp;
 		temp = temp->next;
@@ -41,17 +60,13 @@ void	delete_first(t_lst **li)
 	if (!(*li)->head)
 		return ;
 	temp = (*li)->head;
-	if (temp != NULL)
-	{
-		new = temp->next;
-		if (new)
-			new->prev = NULL;
-		if (temp->redir)
-			delete_redir(temp->redir);
+	new = temp->next;
+	if (temp->redir)
+		delete_redir(temp->redir);
+	if (temp->av)
 		free(temp->av);
-		temp->av = NULL;
-		temp->cmd = NULL;
-		free((*li)->head);
-		(*li)->head = new;
-	}
+	temp->av = NULL;
+	temp->cmd = NULL;
+	free((*li)->head);
+	(*li)->head = new;
 }

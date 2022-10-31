@@ -43,11 +43,10 @@ static void	help_take_arg(char **tab, char ***new, int *pos)
 
 	i = 0;
 	flag = 0;
-	while (tab[*pos] && ft_strcmp(tab[*pos], "|") != 0)
+	while (tab[*pos] && ft_strcmp(tab[*pos], "|") != 0) 
 	{
 		flag = redir_exist(tab[*pos]);
-		if (flag && tab[i][ft_strlen(tab[i]) - 1] == '<' ||\
-		tab[i][ft_strlen(tab[i]) - 1] == '>')
+		if (flag)
 			(*pos) += 2;
 		else
 			(*new)[i++] = tab[(*pos)++];
@@ -68,14 +67,15 @@ static char	**take_argv(char **tab, int *pos, t_cmd *node)
 	while (tab[i] && ft_strcmp(tab[i], "|") != 0)
 	{
 		flag = redir_exist(tab[i]);
-		if (flag && tab[i][ft_strlen(tab[i]) - 1] == '<' ||\
-		tab[i][ft_strlen(tab[i]) - 1] == '>')
+		if (flag)
 		{
 			take_redir(tab[i + 1], flag, &node);
 			count += 2;
 		}
 		i++;
 	}
+	if ((i - *pos) - count == 0)
+		return (NULL);
 	new = malloc(sizeof(char *) * (((i - *pos) - count) + 1));
 	if (!new)
 		return (NULL);
@@ -93,23 +93,21 @@ static void	get_list(t_lst **li, int *pos)
 	if (!node)
 		return ;
 	node->redir = NULL;
+	node->cmd = NULL;
 	node->av = take_argv((*li)->tab, pos, node);
-	//printf("node => %s", node->av[0]);
-	node->cmd = node->av[0];
+	if (node->av)
+		node->cmd = node->av[0];
 	node->infile = 0;
 	node->outfile = 0;
-	node->fd_file = 0;
 	node->next = NULL;
 	if (!(*li)->head)
 	{
-		node->prev = NULL;
 		((*li)->head) = node;
 		return ;
 	}
 	temp = (*li)->head;
-	while (temp && temp->next)
+	while (temp->next)
 		temp = temp->next;
-	node->prev = temp;
 	temp->next = node;
 }
 /*-------------------------------*/

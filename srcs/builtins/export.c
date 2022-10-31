@@ -77,6 +77,8 @@ static int	check_export(char *str, t_lst *ms)
 	i = -1;
 	while (str[++i] && str[i] != '=')
 		;
+	if (!str[i])
+		return (1);
 	i++;
 	while (temp)
 	{

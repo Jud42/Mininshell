@@ -20,15 +20,14 @@ static int	help_std_in_out(t_cmd *cmd, t_redir *redir)
 		{
 			msg_error("minishell: ", 0, redir->name);
 			write(2, ": No such file or directory\n", 28);
-			exit(EXIT_FAILURE);
+			//exit(EXIT_FAILURE);
 		}
 		else
 			msg_error("Error: outfile", 0, "\n");
-		return (0);
+		return (1);
 	}
-	if (cmd->infile > 0 || cmd->outfile > 0)
-		redir->sign = 0;
-	return (1);
+	redir->pos = 0;
+	return (0);
 }
 
 static int	std_in_out(t_cmd *cmd, t_redir *redir)
@@ -38,8 +37,8 @@ static int	std_in_out(t_cmd *cmd, t_redir *redir)
 		cmd->infile = open(".heredoc", O_RDONLY);
 		if (cmd->infile < 0)
 		{
-			msg_error("minishel: error: open()\n", 0, NULL);
-			exit(EXIT_FAILURE);
+			msg_error("minishel: error: open() .heredoc\n", 0, NULL);
+			return (1);
 		}
 	}
 	else if (redir->sign == REDIR_IN)
@@ -50,22 +49,46 @@ static int	std_in_out(t_cmd *cmd, t_redir *redir)
 	else if (redir->sign == REDIR_OUT_D)
 		cmd->outfile = open(redir->name, \
 		O_CREAT | O_WRONLY | O_APPEND, 0644);
-	if (!help_std_in_out(cmd, redir))
-		return (0);
-	return (1);
+	if (help_std_in_out(cmd, redir))
+		return (1);
+	return (0);
 }
 
-static int	push_redir(t_redir **red, int flag)
+static int	process_daddy_heredoc(pid_t pid)
 {
-	if (!flag || !(*red)->name)
-		return (0);
-	if (flag == HEREDOC)
+	int	status;
+	
+	g_ms.pid_child = pid;
+	init_signal();
+	waitpid(pid, &status, 0);
+	if (WIFSIGNALED(status))
 	{
-		child_signal(HEREDOC);
-		if (here_doc(*red))
-			return (1);
+		if (WTERMSIG(status) == SIGINT)
+		{
+			write(1, "\n", 1);
+			g_ms.exit = 128 + status;
+		}
 	}
-	return (1);
+	if (WIFEXITED(status))
+		if (WEXITSTATUS(status) == 1)
+			g_ms.exit = 0;
+	g_ms.pid_child = 0;
+	return (status);
+}
+
+static int	fork_heredoc(t_redir **red, int flag)
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid == -1)
+		exit(EXIT_FAILURE);
+	else if (pid == 0)
+	{
+		init_child_signal(HEREDOC);
+		here_doc(*red);
+	}
+	return(process_daddy_heredoc(pid));
 }
 
 int	init_redir(t_cmd *node, t_lst *li)
@@ -79,15 +102,11 @@ int	init_redir(t_cmd *node, t_lst *li)
 		red = temp_node->redir;
 		while (red)
 		{
-			if (!push_redir(&red, red->sign))
-			{
-				ft_putstr_fd("minishell: \
-				syntax error near unexpectead token \
-				`newline'\n", 2);
-				exit(EXIT_FAILURE);
-			}
-			if (!std_in_out(temp_node, red))
-				return (-1);
+			if (red->sign == HEREDOC)
+				if (fork_heredoc(&red, red->sign))
+					return (1);
+			if (std_in_out(temp_node, red))
+				return (1);
 			red = red->next;
 		}
 		temp_node = temp_node->next;
