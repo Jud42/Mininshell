@@ -2,11 +2,17 @@
 My first team project (2) and this is one of my favorite projects... The location of each function is indicated in the includes/minishel.h to find them easily if necessary.
 
 ## ***INSTALLATION***
+
 On your shell => command => **git clone git@github.com:Jud42/Mininshell.git**
+
 **Go to the minishell directory**.
+
 For compilation => command => **make**
+
 For the execution => command => **./minishell**
+
 To delete everything => command => **make fclean**
+
 ## Introduction
 The objective of this project is to understand how a shell works, by recreating a simple shell taking *bash* as a reference. 
 ### Minishell must:
