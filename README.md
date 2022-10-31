@@ -1,5 +1,5 @@
 # minishell
-My first team project (two) and this is one of my favorite projects... The location of each function is indicated in the includes/minishel.h to find them easily if necessary.
+My first team project (2) and this is one of my favorite projects... The location of each function is indicated in the includes/minishel.h to find them easily if necessary.
 ## Introduction
 The objective of this project is to understand how a shell works, by recreating a simple shell taking *bash* as a reference. 
 ### Minishell must:
