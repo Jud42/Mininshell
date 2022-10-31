@@ -89,11 +89,11 @@ We go through the table again:
 minishell$>  echo "$USER" > 'out"fi"le$HOME'
 ```
 
-![[Illustration_update_word.excalidraw.png]]
+![Alt text](https://github.com/Jud42/Mininshell/blob/master/.png/Illustration_update_word.excalidraw.png?raw=True)
 
 #### ***create_list(t_lst \*\*li)***
 ##### node_structure
-![[Illustration _node_structure.png]]
+![Alt text](https://github.com/Jud42/Mininshell/blob/master/.png/Illustration%20_node_structure.png?raw=True)
 ##### **get_list()**
 Once all the strings are processed we put them in a list for the next step.
 **number of *nodes*** = **number of *pipe* + 1**.
@@ -122,7 +122,7 @@ minishell$> cat Makefile | grep NAME | wc -l > out_file
 ``` 
 
 ==after get_list==
-![[Illustration _after_create_list.png]]
+![Alt text](https://github.com/Jud42/Mininshell/blob/master/.png/Illustration%20_after_create_list.png?raw=True)
 
 
 ## execution
@@ -359,7 +359,7 @@ minishell$> cat file_test | grep Hello | wc -l > outfile
 minishell$>
 ```
 
-![[illustration_pipe_execution.png]]
+![](https://github.com/Jud42/Mininshell/blob/master/.png/illustration_pipe_execution.png?raw=True)
 ## signal & EOF
 ### signal
 ==We manage only two signals:==
