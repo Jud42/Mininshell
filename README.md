@@ -1,5 +1,5 @@
 # minishell
-My first team project (2) and this is one of my favorite projects... The location of each function is indicated in the includes/minishel.h to find them easily if necessary.
+This is one of my favorite projects... The location for each function is given in the includes/minishel.h to find them easily if necessary.
 
 ## ***INSTALLATION***
 
